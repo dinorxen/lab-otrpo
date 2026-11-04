@@ -1,0 +1,99 @@
+@use "sass:color";
+
+$color-bg: #f2f4f3;
+$color-surface: #ffffff;
+$color-text: #5e503f;
+$color-heading: #0a0908;
+$color-border: #a9927d;
+$color-accent: #49111c;
+
+$primary: $color-accent;
+$body-bg: $color-bg;
+$body-color: $color-text;
+$headings-color: $color-heading;
+$border-color: $color-border;
+$font-family-sans-serif: Arial, Helvetica, sans-serif;
+
+@import "bootstrap/scss/bootstrap";
+
+.site-header {
+  background: linear-gradient($color-accent, color.adjust($color-accent, $lightness: -10%));
+}
+
+.logo-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 15px;
+  background: linear-gradient($color-border, color.adjust($color-border, $lightness: -20%));
+  color: $color-surface;
+  font-size: 30px;
+  font-weight: bold;
+}
+
+.download-button {
+  background: linear-gradient($color-border, color.adjust($color-border, $lightness: -20%));
+  color: $color-surface;
+  &:hover {
+    background: $color-text;
+    color: $color-surface;
+  }
+}
+
+.country-card {
+  background: $color-surface;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(26, 26, 46, 0.15);
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.03);
+  }
+  .flag-area { position: relative; }
+  .card-img-top { display: block; width: 100%; }
+
+  .country-label {
+    position: absolute;
+    top: 8px;
+    left: 12px;
+    padding: 3px 9px;
+    border-radius: 3px;
+  }
+}
+
+$card-base-color: color.adjust($color-border, $lightness: 25%);
+@for $i from 1 through 5 {
+  $shade: color.adjust($card-base-color, $lightness: -12% * ($i - 1));
+  .country-column:nth-child(#{$i}) {
+    .country-card { border-color: $shade; }
+    .country-label {
+      background: $shade;
+      color: $color-surface;
+      @if color.channel($shade, "lightness", $space: hsl) > 55% {
+        color: $color-heading;
+      }
+    }
+  }
+}
+
+.site-footer { border-top: 1px solid $color-border; }
+.social-icon { width: 40px; }
+
+.coming-soon {
+    border-radius: 20px;
+    span {
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        color: $color-text;
+    }
+
+    &:hover {
+        background: rgba($color-border, 0.15);
+        span {
+            opacity: 1;
+        }
+    }
+}
