@@ -12,4 +12,6 @@
         <button type="submit" class="btn btn-primary">Сохранить</button>
         <a href="{{ route('countries.index') }}" class="btn btn-secondary">Отмена</a>
     </form>
+
+    @include('countries._historical-facts', ['manageFacts' => true])
 @endsection

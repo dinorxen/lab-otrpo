@@ -23,8 +23,9 @@ class CountryFlagTest extends TestCase
     {
         $disk = Storage::fake('public');
         $image = file_get_contents(base_path('tests/Fixtures/large-flag.png'));
+        $fields = $this->fields + ['description' => str_repeat('А', Country::DESCRIPTION_MIN)];
 
-        $this->post(route('countries.store'), $this->fields + [
+        $this->post(route('countries.store'), $fields + [
             'flag' => UploadedFile::fake()->createWithContent('flag.png', $image),
         ])->assertRedirect(route('countries.index'))->assertSessionHasNoErrors();
 
@@ -33,13 +34,14 @@ class CountryFlagTest extends TestCase
         $disk->assertExists($original);
         [$width, $height] = getimagesize($disk->path($original));
         $this->assertSame([960, 640], [$width, $height]);
-        $this->get(route('countries.show', $country))->assertOk()->assertSee($original);
+        $this->get(route('countries.show', $country), ['X-Requested-With' => 'XMLHttpRequest'])
+            ->assertOk()->assertSee($original);
 
-        $this->put(route('countries.update', $country), $this->fields)
+        $this->put(route('countries.update', $country), $fields)
             ->assertRedirect(route('countries.index'))->assertSessionHasNoErrors();
         $this->assertSame($original, $country->refresh()->flag_path);
 
-        $this->put(route('countries.update', $country), $this->fields + [
+        $this->put(route('countries.update', $country), $fields + [
             'flag' => UploadedFile::fake()->createWithContent('replacement.png', $image),
         ])->assertRedirect(route('countries.index'))->assertSessionHasNoErrors();
 
@@ -54,6 +56,7 @@ class CountryFlagTest extends TestCase
         $disk = Storage::fake('public');
 
         $this->from(route('countries.create'))->post(route('countries.store'), $this->fields + [
+            'description' => str_repeat('А', Country::DESCRIPTION_MIN),
             'flag' => UploadedFile::fake()->createWithContent('flag.png', 'plain text'),
         ])->assertRedirect(route('countries.create'))->assertSessionHasErrors('flag');
 

@@ -24,11 +24,15 @@ class CountrySeeder extends Seeder
 
         DB::transaction(function () use ($countries, $disk) {
             foreach ($countries as $code => [$name, $governmentForm, $area, $description]) {
-                $country = Country::withTrashed()->firstOrNew(['name' => $name], [
-                    'government_form' => $governmentForm,
-                    'area' => $area,
-                    'description' => $description,
-                ]);
+                $country = Country::withTrashed()
+                    ->where('name_key', Country::nameKey($name))
+                    ->orderByRaw('CASE WHEN deleted_at IS NULL THEN 0 ELSE 1 END')
+                    ->first() ?? new Country([
+                        'name' => $name,
+                        'government_form' => $governmentForm,
+                        'area' => $area,
+                        'description' => $description,
+                    ]);
 
                 if ($country->trashed() || ($country->flag_path && $disk->exists($country->flag_path))) {
                     continue;

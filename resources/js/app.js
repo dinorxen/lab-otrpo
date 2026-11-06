@@ -1,5 +1,5 @@
-import './bootstrap';
-import { Modal, Popover, Toast } from 'bootstrap';
+import './country-form';
+import { Modal, Toast } from 'bootstrap';
 import '@fortawesome/fontawesome-free/js/all.js';
 import $ from 'jquery';
 
@@ -32,60 +32,54 @@ const text = document.getElementById('countryModalText');
 const buttons = document.querySelectorAll('.details-button');
 
 let currentIndex = 0;
+let detailRequest;
 
-function openCountry(index) {
+async function openCountry(index) {
+    detailRequest?.abort();
+    const request = new AbortController();
+    detailRequest = request;
     currentIndex = index;
 
     const button = buttons[index];
-    const card = button.closest('.card');
 
-    title.textContent = card.querySelector('.card-title').textContent;
+    title.textContent = button.closest('.card').querySelector('.card-title').textContent.trim();
     text.textContent = 'Загрузка...';
     modal.show();
 
-    fetch(button.dataset.url, {
-        headers: { 'X-Requested-With': 'XMLHttpRequest' }
-    })
-        .then(function (response) {
-            return response.text();
-        })
-        .then(function (html) {
-            if (currentIndex === index) {
-                text.innerHTML = html;
-            }
+    try {
+        const response = await fetch(button.dataset.url, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            signal: request.signal,
         });
+        if (!response.ok) {
+            throw new Error('Country details request failed');
+        }
+
+        const html = await response.text();
+        if (!request.signal.aborted) {
+            text.innerHTML = html;
+        }
+    } catch {
+        if (!request.signal.aborted) {
+            text.textContent = 'Не удалось загрузить подробности. Попробуйте открыть карточку ещё раз.';
+        }
+    }
 }
 
-for (let i = 0; i < buttons.length; i++) {
-    buttons[i].onclick = function () {
-        openCountry(i);
-    };
-}
+buttons.forEach((button, index) => button.addEventListener('click', () => openCountry(index)));
+modalElement.addEventListener('hide.bs.modal', () => detailRequest?.abort());
 
-document.addEventListener('keydown', function (event) {
-    if (!modalElement.classList.contains('show')) {
+document.addEventListener('keydown', event => {
+    if (!buttons.length || !modalElement.classList.contains('show')) {
         return;
     }
 
-    let nextIndex = currentIndex;
-
-    if (event.key === 'ArrowRight') {
-        nextIndex++;
-    } else if (event.key === 'ArrowLeft') {
-        nextIndex--;
-    } else {
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
         return;
     }
 
     event.preventDefault();
 
-    if (nextIndex >= buttons.length) {
-        nextIndex = 0;
-    }
-
-    if (nextIndex < 0) {
-        nextIndex = buttons.length - 1;
-    }
-
-    openCountry(nextIndex);
+    const step = event.key === 'ArrowRight' ? 1 : -1;
+    openCountry((currentIndex + step + buttons.length) % buttons.length);
 });

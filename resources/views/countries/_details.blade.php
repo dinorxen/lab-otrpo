@@ -7,10 +7,8 @@
 <p><strong>Форма правления:</strong> {{ $country->government_form }}</p>
 <p><strong>Площадь:</strong> {{ number_format($country->area, 0, ',', ' ') }} км²</p>
 
-@if ($country->description)
-    <p>{!! nl2br(e($country->description)) !!}</p>
-@else
-    <p class="text-muted">Описание пока не добавлено.</p>
-@endif
+@include('countries._description')
 
 <p class="text-muted small mb-0">Добавлено: {{ $country->created_at_formatted }}</p>
+
+@include('countries._historical-facts')

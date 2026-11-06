@@ -1,37 +1,49 @@
 @csrf
+@php
+    $area = old('area', $country->area);
+    $description = old('description', $country->description);
+@endphp
 
 <div class="mb-3">
     <label for="name" class="form-label">Название</label>
-    <input type="text"
-           class="form-control @error('name') is-invalid @enderror"
-           id="name" name="name"
-           value="{{ old('name', $country->name ?? '') }}"
-           maxlength="255" required>
-    <div class="invalid-feedback">
-        @error('name') {{ $message }} @else Введите название страны. @enderror
+    <select class="form-select @error('name') is-invalid @enderror" id="name" name="name"
+            data-name-check-url="{{ route('countries.check-name') }}" data-country-id="{{ $country->getKey() }}"
+            aria-describedby="name-feedback" required autofocus>
+        <option value="">Выберите страну</option>
+        @foreach ($country->countryNameOptions() as $countryName)
+            <option value="{{ $countryName }}" @selected(old('name', $country->name) === $countryName)>
+                {{ $countryName }}
+            </option>
+        @endforeach
+    </select>
+    <div class="invalid-feedback" id="name-feedback" aria-live="polite">
+        @error('name') {{ $message }} @else Выберите страну. @enderror
     </div>
 </div>
 
 <div class="mb-3">
     <label for="government_form" class="form-label">Форма правления</label>
-    <input type="text"
-           class="form-control @error('government_form') is-invalid @enderror"
-           id="government_form" name="government_form"
-           value="{{ old('government_form', $country->government_form ?? '') }}"
-           maxlength="255" required>
+    <select class="form-select @error('government_form') is-invalid @enderror"
+            id="government_form" name="government_form" required>
+        <option value="">Выберите форму правления</option>
+        @foreach ($country->governmentFormOptions() as $formOption)
+            <option value="{{ $formOption }}" @selected(old('government_form', $country->government_form) === $formOption)>
+                {{ $formOption }}
+            </option>
+        @endforeach
+    </select>
     <div class="invalid-feedback">
-        @error('government_form') {{ $message }} @else Введите форму правления. @enderror
+        @error('government_form') {{ $message }} @else Выберите форму правления. @enderror
     </div>
 </div>
 
 <div class="mb-3">
     <label for="area" class="form-label">Площадь, км²</label>
-    <input type="number"
+    <input type="text" inputmode="numeric" pattern="[0-9]+"
            class="form-control @error('area') is-invalid @enderror"
-           id="area" name="area"
-           value="{{ old('area', $country->area ?? '') }}"
-           min="1" step="1" required>
-    <div class="invalid-feedback">
+           id="area" name="area" aria-describedby="area-feedback"
+           data-max="{{ \App\Models\Country::AREA_MAX }}" value="{{ is_scalar($area) ? $area : '' }}" required>
+    <div class="invalid-feedback" id="area-feedback" aria-live="polite">
         @error('area') {{ $message }} @else Введите площадь целым числом, больше нуля. @enderror
     </div>
 </div>
@@ -39,10 +51,16 @@
 <div class="mb-3">
     <label for="description" class="form-label">Описание</label>
     <textarea class="form-control @error('description') is-invalid @enderror"
-              id="description" name="description" rows="5">{{ old('description', $country->description ?? '') }}</textarea>
-    @error('description')
-        <div class="invalid-feedback">{{ $message }}</div>
-    @enderror
+              id="description" name="description" rows="10" aria-describedby="description-feedback description-count"
+              data-min="{{ \App\Models\Country::DESCRIPTION_MIN }}" data-max="{{ \App\Models\Country::DESCRIPTION_MAX }}"
+              data-original="{{ $country->description }}"
+              @required(!$country->exists)>{{ is_string($description) ? $description : '' }}</textarea>
+    <div class="invalid-feedback" id="description-feedback" aria-live="polite">
+        @error('description') {{ $message }} @else Введите хотя бы {{ \App\Models\Country::DESCRIPTION_MIN }} символов. @enderror
+    </div>
+    <div class="form-text" id="description-count">
+        От {{ \App\Models\Country::DESCRIPTION_MIN }} до {{ number_format(\App\Models\Country::DESCRIPTION_MAX, 0, ',', ' ') }} символов.
+    </div>
 </div>
 
 <div class="mb-3">
@@ -59,16 +77,22 @@
     @enderror
 </div>
 
-<script>
-    // Проверка полей средствами HTML5 и Bootstrap: подсвечивает ошибки до отправки на сервер
-    var forms = document.querySelectorAll('.needs-validation');
-    for (var i = 0; i < forms.length; i++) {
-        forms[i].addEventListener('submit', function (event) {
-            if (!this.checkValidity()) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-            this.classList.add('was-validated');
-        });
-    }
-</script>
+<section id="country-facts" class="mb-4" tabindex="-1" aria-labelledby="country-facts-title">
+    <h2 class="h4" id="country-facts-title">Добавление исторических фактов</h2>
+    <p class="form-text">Факты сохранятся вместе со страной. Год до нашей эры указывай со знаком минус.</p>
+    @if ($country->exists)
+        <p><a href="#saved-country-facts">Перейти к сохранённым фактам</a></p>
+    @endif
+    @error('facts')
+        <p class="text-danger">{{ $message }}</p>
+    @enderror
+    <div id="country-fact-rows">
+        @foreach (is_array(old('facts')) ? old('facts') : [] as $index => $fact)
+            @include('countries._fact-fields', ['index' => $index, 'fact' => is_array($fact) ? $fact : []])
+        @endforeach
+    </div>
+    <template id="country-fact-template">
+        @include('countries._fact-fields', ['index' => '__INDEX__', 'fact' => []])
+    </template>
+    <button class="btn btn-outline-primary" type="button" id="add-country-fact">Добавить факт</button>
+</section>
