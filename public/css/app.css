@@ -12021,6 +12021,9 @@ textarea.form-control-lg {
 .country-card .card-img-top {
   display: block;
   width: 100%;
+  aspect-ratio: 3/2;
+  -o-object-fit: contain;
+     object-fit: contain;
 }
 .country-card .country-label {
   position: absolute;
@@ -12030,45 +12033,45 @@ textarea.form-control-lg {
   border-radius: 3px;
 }
 
-.country-column:nth-child(1) .country-card {
+.country-column:nth-child(5n+1) .country-card {
   border-color: rgb(86.1819172113%, 82.4863834423%, 79.1122004357%);
 }
-.country-column:nth-child(1) .country-label {
+.country-column:nth-child(5n+1) .country-label {
   background: rgb(86.1819172113%, 82.4863834423%, 79.1122004357%);
   color: #ffffff;
   color: #0a0908;
 }
 
-.country-column:nth-child(2) .country-card {
+.country-column:nth-child(5n+2) .country-card {
   border-color: rgb(76.6263616558%, 70.3752723312%, 64.6677559913%);
 }
-.country-column:nth-child(2) .country-label {
+.country-column:nth-child(5n+2) .country-label {
   background: rgb(76.6263616558%, 70.3752723312%, 64.6677559913%);
   color: #ffffff;
   color: #0a0908;
 }
 
-.country-column:nth-child(3) .country-card {
+.country-column:nth-child(5n+3) .country-card {
   border-color: rgb(67.0708061002%, 58.26416122%, 50.2233115468%);
 }
-.country-column:nth-child(3) .country-label {
+.country-column:nth-child(5n+3) .country-label {
   background: rgb(67.0708061002%, 58.26416122%, 50.2233115468%);
   color: #ffffff;
   color: #0a0908;
 }
 
-.country-column:nth-child(4) .country-card {
+.country-column:nth-child(5n+4) .country-card {
   border-color: rgb(56.1492374728%, 46.2151416122%, 37.1448801743%);
 }
-.country-column:nth-child(4) .country-label {
+.country-column:nth-child(5n+4) .country-label {
   background: rgb(56.1492374728%, 46.2151416122%, 37.1448801743%);
   color: #ffffff;
 }
 
-.country-column:nth-child(5) .country-card {
+.country-column:nth-child(5n+5) .country-card {
   border-color: rgb(41.7047930283%, 34.3262527233%, 27.5893246187%);
 }
-.country-column:nth-child(5) .country-label {
+.country-column:nth-child(5n+5) .country-label {
   background: rgb(41.7047930283%, 34.3262527233%, 27.5893246187%);
   color: #ffffff;
 }

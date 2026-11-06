@@ -7,6 +7,23 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Запуск «Глобуса»
+
+Для проекта нужны PHP 8.3+ и Node.js 22+. Node.js используется и для сборки, и для масштабирования флагов при загрузке.
+
+После установки зависимостей Composer и настройки базы в `.env` выполните:
+
+```sh
+npm ci
+npm run dev
+php artisan migrate
+php artisan storage:link
+php artisan db:seed --class=CountrySeeder
+php artisan serve
+```
+
+Команда `storage:link` нужна один раз. `CountrySeeder` добавляет пять стран из предыдущей лабораторной и копирует исходные флаги в публичное хранилище. Её можно запускать повторно.
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
